@@ -14,9 +14,33 @@ class App extends React.Component {
     }
   }
 
+  deleteItem = id => {
+    fetch(`https://jel-flask-todo-api.herokuapp.com/todo/${id}`, {
+      method: 'DELETE'
+    })
+      .then(
+        this.setState({
+          todos: this.state.todos.filter(item => {
+            return item.id !== id
+          })
+        })
+      )
+  }
+
   addTodo = (e) => {
     e.preventDefault()
-    console.log('added Todo')
+    axios.post('https://jel-flask-todo-api.herokuapp.com/todo', {
+      title: this.state.todo,
+      done: false,
+    })
+      .then(res => {
+        this.setState({
+          todos: [res.data, ...this.state.todos],
+          todo: "",
+        })
+      })
+      .catch((err) => console.log("add todo error: ", err));
+
   }
 
   handleChange = (e) => {
@@ -28,7 +52,7 @@ class App extends React.Component {
   renderTodos = () => {
     return this.state.todos.map(item => {
       return (
-        <TodoItem key={item.id} item={item} />
+        <TodoItem key={item.id} item={item} deleteItem={this.deleteItem} />
       )
     })
   }
